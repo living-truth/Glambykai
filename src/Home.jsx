@@ -16,11 +16,17 @@ const Home = () => {
     const [showDescription2, setShowDescription2] = useState(false);
     const [showDescription3, setShowDescription3] = useState(false);
     const [showDescription4, setShowDescription4] = useState(false);
+    const [sign, setSign] = useState(openSign);
+
     const [isConfirmSubmitModalOpen, setIsConfirmSubmitModalOpen] = useState(false);
     const [IsSubmitErrorModalOpen, setIsSubmitErrorModalOpen] = useState(false);
     const [holidays, setHolidays] = useState([]);
     const countryCode = 'US'
     const [isOpen, setIsOpen] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [startScrollLeft, setStartScrollLeft] = useState(0);
+    const dragMoved = useRef(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -29,7 +35,6 @@ const Home = () => {
         message: ''
     });
 
-    // Handle form input changes
 
     const carouselRef = useRef(null);
     const scrollAmount = 1120;
@@ -39,12 +44,72 @@ const Home = () => {
             section.scrollIntoView({ behavior: 'smooth' });
         }
     };
-    const [sign, setSign] = useState(openSign);
+
+
+    const scrollLeft = () => {
+        if (carouselRef.current) {
+            const scrollAmount = carouselRef.current.offsetWidth;
+            carouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        }
+    };
+
+    const scrollRight = () => {
+        if (carouselRef.current) {
+            const { scrollLeft: currentScroll, offsetWidth, scrollWidth } = carouselRef.current;
+            const scrollAmount = offsetWidth;
+
+            if (currentScroll + offsetWidth >= scrollWidth - 1) {
+                carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+    };
+
+    const handleDragStart = (e) => {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        setIsDragging(true);
+        setStartX(clientX);
+        setStartScrollLeft(carouselRef.current.scrollLeft);
+        carouselRef.current.classList.add('dragging');
+        dragMoved.current = false; // Reset drag movement tracker
+    };
+
+    const handleDragging = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const deltaX = clientX - startX;
+        // Track if significant drag occurred (optional for click prevention)
+        if (Math.abs(deltaX) > 5) dragMoved.current = true;
+
+        carouselRef.current.scrollLeft = startScrollLeft - deltaX;
+    };
+
+    const handleDragEnd = () => {
+        setIsDragging(false);
+        carouselRef.current.classList.remove('dragging');
+    };
+
+    const handleMouseLeave = () => {
+        if (isDragging) handleDragEnd();
+    };
+
+    // Optional: Prevent card click if drag occurred
+    const handleCardClick = (e, item) => {
+        if (dragMoved.current) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragMoved.current = false;
+            return;
+        }
+    }
     useEffect(() => {
         const fetchHolidays = async () => {
             if (!countryCode) {
                 console.error("No country code provided");
-                setHolidays([]);                return;
+                setHolidays([]); return;
             }
 
             try {
@@ -177,25 +242,6 @@ const Home = () => {
 
 
 
-    const scrollLeft = () => {
-        if (carouselRef.current) {
-            const scrollAmount = carouselRef.current.offsetWidth;
-            carouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        }
-    };
-
-    const scrollRight = () => {
-        if (carouselRef.current) {
-            const { scrollLeft: currentScroll, offsetWidth, scrollWidth } = carouselRef.current;
-            const scrollAmount = offsetWidth;
-
-            if (currentScroll + offsetWidth >= scrollWidth - 1) {
-                carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-            } else {
-                carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-            }
-        }
-    };
 
     const cardData = [
         {
@@ -483,10 +529,22 @@ const Home = () => {
                     <div
                         ref={carouselRef}
                         className="overflow-x-hidden scroll-smooth mx-auto w-full max-w-[1120px]"
+                        onMouseDown={handleDragStart}
+                        onMouseMove={handleDragging}
+                        onMouseUp={handleDragEnd}
+                        onMouseLeave={handleMouseLeave}
+                        onTouchStart={handleDragStart}
+                        onTouchMove={handleDragging}
+                        onTouchEnd={handleDragEnd}
+                        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                     >
                         <div className="flex gap-8">
                             {cardData.map((item, index) => (
-                                <div key={index} className="bg-white rounded-2xl shadow w-[250px] flex-shrink-0 sm:w-[calc(50%-16px)] md:w-[250px]">
+                                <div
+                                    key={index}
+                                    className="bg-white rounded-2xl shadow w-[250px] flex-shrink-0 sm:w-[calc(50%-16px)] md:w-[250px]"
+                                    onClick={(e) => handleCardClick(e, item)}
+                                >
                                     <img
                                         src={item.image}
                                         alt={item.title}
