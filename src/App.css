@@ -17,3 +17,22 @@ body {
   text-align: center;
 
 }
+
+/* Hide scrollbar */
+.scroll-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scroll-container::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Snap behavior */
+@supports (scroll-snap-type: x mandatory) {
+  .scroll-container {
+      scroll-snap-type: x mandatory;
+  }
+  .snap-center {
+      scroll-snap-align: center;
+  }
+}

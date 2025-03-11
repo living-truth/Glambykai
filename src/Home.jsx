@@ -29,9 +29,6 @@ const Home = () => {
     const [startScrollLeft, setStartScrollLeft] = useState(0);
     const dragMoved = useRef(false);
 
-    const lastTouchX = useRef(0);
-const lastTouchTime = useRef(0);
-const velocityRef = useRef(0);
 
 
     const [formData, setFormData] = useState({
@@ -51,7 +48,7 @@ const velocityRef = useRef(0);
         }
     };
 
-    const smoothScroll = (element, target, duration = 100) => {
+    const smoothScroll = (element, target, duration = 300) => {
         const start = element.scrollLeft;
         const change = target - start;
         const startTime = performance.now();
@@ -78,7 +75,7 @@ const velocityRef = useRef(0);
             let target = carouselRef.current.scrollLeft - carouselRef.current.offsetWidth;
             // Prevent scrolling beyond the start
             target = Math.max(0, target);
-            smoothScroll(carouselRef.current, target, 100);
+            smoothScroll(carouselRef.current, target, 300);
         }
     };
 
@@ -93,11 +90,13 @@ const velocityRef = useRef(0);
             } else {
                 target = scrollLeft + offsetWidth;
             }
-            smoothScroll(carouselRef.current, target, 100);
+            smoothScroll(carouselRef.current, target, 300);
         }
     };
 
     const handleDragStart = (e) => {
+        document.body.style.overflowY = 'hidden';
+
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         setIsDragging(true);
         setStartX(clientX);
@@ -117,6 +116,7 @@ const velocityRef = useRef(0);
     const handleDragEnd = (e) => {
         setIsDragging(false);
         carouselRef.current.classList.remove('dragging');
+        document.body.style.overflowY = '';
 
         const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
         const deltaX = clientX - startX;
@@ -126,7 +126,7 @@ const velocityRef = useRef(0);
             // Snap to previous card
             let target = carouselRef.current.scrollLeft - carouselRef.current.offsetWidth;
             target = Math.max(0, target);
-            smoothScroll(carouselRef.current, target, 500);
+            smoothScroll(carouselRef.current, target, 300);
         } else if (deltaX < -threshold) {
             // Snap to next card
             let target = carouselRef.current.scrollLeft + carouselRef.current.offsetWidth;
@@ -135,7 +135,7 @@ const velocityRef = useRef(0);
             if (target > maxScroll) {
                 target = 0;
             }
-            smoothScroll(carouselRef.current, target, 500);
+            smoothScroll(carouselRef.current, target, 300);
         }
         // Otherwise, leave the scroll position as is
     };
@@ -443,7 +443,7 @@ const velocityRef = useRef(0);
                             {/* Description overlay appears on click */}
                             {showDescription && (
                                 <div className="absolute inset-0 bg-black/30  flex items-center justify-center p-4">
-                                    <p className="text-sm text-white text-center">
+                                    <p className="text-sm text-primary text-center">
                                         Expert repairs and revitalization for your existing wigs.
                                     </p>
                                 </div>
@@ -472,7 +472,7 @@ const velocityRef = useRef(0);
                             {/* Description overlay appears on click */}
                             {showDescription2 && (
                                 <div className="absolute inset-0 bg-black/30  flex items-center font-jua justify-center p-4">
-                                    <p className="text-sm text-white text-center">
+                                    <p className="text-sm text-primary text-center">
                                         Custom-made closures for a seamless, natural hairline.                                    </p>
                                 </div>
                             )}
@@ -500,7 +500,7 @@ const velocityRef = useRef(0);
                             {/* Description overlay appears on click */}
                             {showDescription3 && (
                                 <div className="absolute inset-0 bg-black/30  flex items-center font-jua justify-center p-4">
-                                    <p className="text-sm text-white text-center">
+                                    <p className="text-sm text-primary text-center">
                                         Transform and refresh your wig with modern styling techniques.
                                     </p>
                                 </div>
@@ -530,7 +530,7 @@ const velocityRef = useRef(0);
                             {/* Description overlay appears on click */}
                             {showDescription4 && (
                                 <div className="absolute inset-0 bg-black/30  flex items-center font-jua justify-center p-4">
-                                    <p className="text-sm text-white text-center">
+                                    <p className="text-sm text-primary text-center">
                                         Authentic, protective styles with a modern twist.
                                     </p>
                                 </div>
@@ -576,7 +576,7 @@ const velocityRef = useRef(0);
                     {/* Carousel Container */}
                     <div
                         ref={carouselRef}
-                        className="overflow-x-hidden scroll-smooth mx-auto w-full max-w-[1120px]"
+                        className="overflow-x-hidden scroll-smooth mx-auto w-full max-w-[1120px] px-20 md:px-0 scroll-container"
                         onMouseDown={handleDragStart}
                         onMouseMove={handleDragging}
                         onMouseUp={handleDragEnd}
@@ -586,11 +586,11 @@ const velocityRef = useRef(0);
                         onTouchEnd={handleDragEnd}
                         style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                     >
-                        <div className="flex gap-8">
+                        <div className="flex gap-40 md:gap-8 md:pl-0 mdp:pr-0 pl-[calc(50%-125px)] pr-[calc(50%-125px)]">
                             {cardData.map((item, index) => (
                                 <div
                                     key={index}
-                                    className="bg-white rounded-2xl shadow w-[250px] flex-shrink-0 sm:w-[calc(50%-16px)] md:w-[250px]"
+                                    className="bg-white rounded-2xl shadow w-[250px] flex-shrink-0 snap-center"
                                     onClick={(e) => handleCardClick(e, item)}
                                 >
                                     <img
@@ -623,6 +623,41 @@ const velocityRef = useRef(0);
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
+
+
+
+                    <div className="flex justify-center gap-4 mt-4 md:hidden">
+                        <button
+                            onClick={scrollLeft}
+                            className="bg-white p-2 rounded-full shadow hover:bg-gray-200"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-8 w-8"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={scrollRight}
+                            className="bg-white p-2 rounded-full shadow hover:bg-gray-200"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-8 w-8"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
 
 
                 </div>
@@ -709,7 +744,7 @@ const velocityRef = useRef(0);
                                     }`}
                                 disabled={!isOpen}
                             >
-                                Book Now
+                                Book now
                             </button>
                         </form>
                     </div>
