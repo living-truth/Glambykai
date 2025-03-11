@@ -25,8 +25,14 @@ const Home = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
+
     const [startScrollLeft, setStartScrollLeft] = useState(0);
     const dragMoved = useRef(false);
+
+    const lastTouchX = useRef(0);
+const lastTouchTime = useRef(0);
+const velocityRef = useRef(0);
+
 
     const [formData, setFormData] = useState({
         name: '',
@@ -37,7 +43,7 @@ const Home = () => {
 
 
     const carouselRef = useRef(null);
-    const scrollAmount = 1120;
+    // const scrollAmount = 1120;
     const scrollToSection = (sectionId) => {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -45,24 +51,49 @@ const Home = () => {
         }
     };
 
+    const smoothScroll = (element, target, duration = 100) => {
+        const start = element.scrollLeft;
+        const change = target - start;
+        const startTime = performance.now();
 
+        // Ease in-out quadratic function
+        const easeInOutQuad = (t) =>
+            t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+        const animateScroll = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            element.scrollLeft = start + change * easeInOutQuad(progress);
+            if (elapsed < duration) {
+                requestAnimationFrame(animateScroll);
+            }
+        };
+
+        requestAnimationFrame(animateScroll);
+    };
+
+    // Updated scroll left function
     const scrollLeft = () => {
         if (carouselRef.current) {
-            const scrollAmount = carouselRef.current.offsetWidth;
-            carouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            let target = carouselRef.current.scrollLeft - carouselRef.current.offsetWidth;
+            // Prevent scrolling beyond the start
+            target = Math.max(0, target);
+            smoothScroll(carouselRef.current, target, 100);
         }
     };
 
+    // Updated scroll right function
     const scrollRight = () => {
         if (carouselRef.current) {
-            const { scrollLeft: currentScroll, offsetWidth, scrollWidth } = carouselRef.current;
-            const scrollAmount = offsetWidth;
-
-            if (currentScroll + offsetWidth >= scrollWidth - 1) {
-                carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+            const { scrollLeft, offsetWidth, scrollWidth } = carouselRef.current;
+            let target;
+            // If at (or near) the end, wrap around to the beginning
+            if (scrollLeft + offsetWidth >= scrollWidth - 1) {
+                target = 0;
             } else {
-                carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                target = scrollLeft + offsetWidth;
             }
+            smoothScroll(carouselRef.current, target, 100);
         }
     };
 
@@ -72,24 +103,41 @@ const Home = () => {
         setStartX(clientX);
         setStartScrollLeft(carouselRef.current.scrollLeft);
         carouselRef.current.classList.add('dragging');
-        dragMoved.current = false; // Reset drag movement tracker
+        dragMoved.current = false;
     };
 
     const handleDragging = (e) => {
         if (!isDragging) return;
         e.preventDefault();
-
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const deltaX = clientX - startX;
-        // Track if significant drag occurred (optional for click prevention)
-        if (Math.abs(deltaX) > 5) dragMoved.current = true;
-
         carouselRef.current.scrollLeft = startScrollLeft - deltaX;
     };
 
-    const handleDragEnd = () => {
+    const handleDragEnd = (e) => {
         setIsDragging(false);
         carouselRef.current.classList.remove('dragging');
+
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const deltaX = clientX - startX;
+        const threshold = carouselRef.current.offsetWidth / 4; // adjust threshold as needed
+
+        if (deltaX > threshold) {
+            // Snap to previous card
+            let target = carouselRef.current.scrollLeft - carouselRef.current.offsetWidth;
+            target = Math.max(0, target);
+            smoothScroll(carouselRef.current, target, 500);
+        } else if (deltaX < -threshold) {
+            // Snap to next card
+            let target = carouselRef.current.scrollLeft + carouselRef.current.offsetWidth;
+            const maxScroll = carouselRef.current.scrollWidth - carouselRef.current.offsetWidth;
+            // Wrap around if at end
+            if (target > maxScroll) {
+                target = 0;
+            }
+            smoothScroll(carouselRef.current, target, 500);
+        }
+        // Otherwise, leave the scroll position as is
     };
 
     const handleMouseLeave = () => {
@@ -576,39 +624,7 @@ const Home = () => {
                         </svg>
                     </button>
 
-                    {/* Mobile Arrows */}
-                    <div className="md:hidden flex justify-center gap-4 mt-4">
-                        <button
-                            onClick={scrollLeft}
-                            className="bg-white p-2 rounded-full shadow hover:bg-gray-200"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <button
-                            onClick={scrollRight}
-                            className="bg-white p-2 rounded-full shadow hover:bg-gray-200"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
+
                 </div>
 
             </div>
