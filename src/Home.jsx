@@ -6,8 +6,7 @@ import openSign from './assets/opensign.png'
 import closeSign from './assets/closedsign.png'
 import Footer from './Footer';
 import axios from "axios";
-import sorry from './assets/logoutmodal.png';
-import ok from './assets/ok.png';
+import silhouetteLogo from './assets/GlamByKai_Logo.png';
 
 
 
@@ -679,7 +678,7 @@ const Home = () => {
                     {/* Right Column: Form */}
                     <div>
                         <h2 className="text-3xl md:text-4xl font-medium font-arima mb-2">
-                            Book Your Visit
+                            For Enquiries
                         </h2>
                         {/* Thin black bar under the heading (optional) */}
                         <div className="w-16 h-1 bg-black mb-6" />
@@ -744,7 +743,7 @@ const Home = () => {
                                     }`}
                                 disabled={!isOpen}
                             >
-                                Book now
+                                Contact Us
                             </button>
                         </form>
                     </div>
@@ -763,10 +762,10 @@ const Home = () => {
                                 </svg>
                             </button>
                             <div className="text-center">
-                                <img src={ok} alt="Success" className="mx-auto mb-4" />
+                                <img src={silhouetteLogo} alt="Success" className="mx-auto mb-4" />
                                 <h2 className="text-xl font-bold text-primary">Success!</h2>
                                 <p className="text-body-text font-medium my-4">
-                                    You’ve successfully sent your request.
+                                    You’ve successfully sent your request.Thank you for choosing Glambykai
                                 </p>
                             </div>
                         </div>
@@ -784,10 +783,10 @@ const Home = () => {
                                 </svg>
                             </button>
                             <div className="text-center">
-                                <img src={sorry} alt="Success" className="mx-auto mb-4" />
+                                <img src={silhouetteLogo} alt="Success" className="mx-auto mb-4" />
                                 <h2 className="text-xl font-bold text-primary">sorry</h2>
                                 <p className="text-body-text font-medium my-4">
-                                    There seems to be an error trying to submit your  request. Please try again later. if the issue persists contact support.   </p>
+                                    There seems to be an error trying to submit your  request. Please try again later. Feel free to contact us through our social media channels.   </p>
                             </div>
                         </div>
                     </div>

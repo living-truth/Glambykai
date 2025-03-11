@@ -110,7 +110,7 @@ const Footer = () => {
                                 <span className="font-semibold">Location:</span> Accra, Ghana
                             </li>
                             <li>
-                                <a href="mailto:GlambyKai@gmail.com" className="text-white">GlambyKai@gmail.com</a>
+                                <a href="mailto:glambykai.hair@gmail.com" className="text-white">glambykai.hair@gmail.com</a>
                             </li>
                         </ul>
                     </div>
