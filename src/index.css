@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme{
+  --color-primary:#F191CB;       
+  /* --color-secondary: 60 138 240;     
+  --color-tertiary: 112 112 112;      */
+  --font-arima: "Arima", serif;
+  --font-openSans: "Open Sans", serif;
+  --font-cambo: "Cambo", serif;
+  --font-jua: "Jua", serif;
+  --font-aggy:"Agbalumo", serif
+}

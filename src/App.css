@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Agbalumo&family=Arima:wght@100..700&family=Cambo&family=Jua&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+body {
+  font-family: 'Open Sans', serif;
+}
+
+.home-container {
+  background-image: url('./assets/Background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+
+}
