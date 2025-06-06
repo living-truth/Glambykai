@@ -325,7 +325,29 @@ const Home = () => {
         },
     ];
 
+    const serviceRef = useRef(null);
+    const featuredRef = useRef(null);
 
+    const [isServiceVisible, setIsServiceVisible] = useState(false);
+    const [isFeaturedVisible, setIsFeaturedVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.target === serviceRef.current && entry.isIntersecting) {
+                    setIsServiceVisible(true);
+                }
+                if (entry.target === featuredRef.current && entry.isIntersecting) {
+                    setIsFeaturedVisible(true);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        if (serviceRef.current) observer.observe(serviceRef.current);
+        if (featuredRef.current) observer.observe(featuredRef.current);
+
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <>
@@ -407,7 +429,12 @@ const Home = () => {
             <div id="services" className="py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Heading and Subheading */}
-                    <div className="text-center mb-12">
+                    <div
+                        id="services"
+                        ref={serviceRef}
+                        className={`transition-all duration-700 transform  max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white ${isServiceVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+                            }`}
+                    >
                         <h2 className="text-4xl md:text-5xl  font-arima  text-gray-900">
                             Premium Hair Services
                         </h2>
@@ -544,7 +571,12 @@ const Home = () => {
 
             <div className="py-16 bg-primary rounded-2xl" id='collections'>
                 {/* Container for heading and subheading */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+                <div
+                    id="featured"
+                    ref={featuredRef}
+                    className={`transition-all duration-700 transform max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white ${isFeaturedVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+                        }`}
+                >
                     <h2 className="text-3xl md:text-4xl font-arima">Featured Styles</h2>
                     <p className="mt-3 text-base font-openSans md:text-lg max-w-3xl mx-auto">
                         Our featured Styles showcase our top-quality wigs, highlighting
